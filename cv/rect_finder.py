@@ -1,53 +1,10 @@
 import cv2
 import numpy
-
-# image = cv2.imread("rect.jpg")
-
-# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-# frame = cv2.imshow("gray image", gray)
-
-# cv2.waitKey(0)
-
-# gray = cv2.bilateralFilter(gray, 11, 17, 17)
-
-# frame = cv2.imshow("filtered image", gray)
-
-# cv2.waitKey(0)
-
-# edges = cv2.Canny(gray, 100, 200)
-
-# frame = cv2.imshow("edges", edges)
-
-# cv2.waitKey(0)
-
-# (cnts, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-# cnts = sorted(cnts, key = cv2.contourArea)[:10]
-
-# screenCnt = None
-
-# # print cnts[0]
-
-# # for c in cnts:
-# # 	peri = cv2.arcLength(c, True)
-# # 	approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-
-# # 	if len(approx) == 4:
-# # 		screenCnt = approx
-# # 		break
-
-
-# cv2.drawContours(image, cnts, -1, (0, 255, 0), 3)
-
-# cv2.imshow("Contour!", image)
-# cv2.waitKey(0)
+import time
 
 def angle_cos(p0, p1, p2): # takes three points, finds the angle b/w two vectors formed from p0 & p1, p1 & p2
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs( numpy.dot(d1, d2) / numpy.sqrt( numpy.dot(d1, d1)*numpy.dot(d2, d2) ) )
-
-
 
 def findTarget(rectIndex, hierarchy): # traverses list of rectangles, tries to reach depth for two concentric rects (3 layers in)
 	# 4 [ 8  3  5 -1]
@@ -121,10 +78,47 @@ def processImage(img):
 		drawCentroid(img, rectCnt[targetIndex])
 	cv2.imshow("Contour!", img)
 
-cap = cv2.VideoCapture(0)
 
-while True:
+
+using_pi_camera = False
+
+try:
+    from picamera.array import PiRGBArray
+    from picamera import PiCamera
+    using_pi_camera = True
+
+    print "Pi camera detected"
+
+    # initialize the camera and grab a reference to the raw camera capture
+    camera = PiCamera()
+    camera.resolution = (640, 480)
+    camera.framerate = 18
+    camera.exposure_mode = 'auto'
+    rawCapture = PiRGBArray(camera, size=(640, 480))
+    
+    # allow the camera to warmup
+    time.sleep(0.1)
+
+    # capture frames from the camera
+    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+	# grab the raw NumPy array representing the image, then initialize the timestamp
+	# and occupied/unoccupied text
+	image = frame.array
+
+	# process image
+        
+        cv2.waitKey(1)
+        processImage(image)
+	# clear the stream in preparation for the next frame
+	rawCapture.truncate(0)
+
+except ImportError, e:
+    print "No Pi camera module detected, not running on a Pi"
+    using_pi_camera = False
+    cap = cv2.VideoCapture(0)
+
+    while True:
 	img = cap.read()[1]
-	processImage(img)
+        processImage(img)
 	cv2.waitKey(150)
 
