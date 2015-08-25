@@ -75,10 +75,7 @@ def drawCentroid(img, contour):
 	cy = int(mean[1])
 	cv2.circle(img, (cx,cy), 5, (0,0,255), -1)
 
-cap = cv2.VideoCapture(0)
-
-while True:
-	img = cap.read()[1]
+def processImage(img):
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 	gray = cv2.bilateralFilter(gray, 11, 25, 25)
 
@@ -123,4 +120,11 @@ while True:
 		# cv2.drawContours(img, rectCnt, targetIndex, (0, 0, 255), 2)
 		drawCentroid(img, rectCnt[targetIndex])
 	cv2.imshow("Contour!", img)
+
+cap = cv2.VideoCapture(0)
+
+while True:
+	img = cap.read()[1]
+	processImage(img)
 	cv2.waitKey(150)
+
