@@ -34,7 +34,7 @@ def drawCentroid(img, contour):
 
 def processImage(img):
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	gray = cv2.bilateralFilter(gray, 11, 25, 25)
+	gray = cv2.bilateralFilter(gray, 5, 25, 25)
 
 	edges = cv2.Canny(gray, 100, 200)
 
@@ -70,7 +70,7 @@ def processImage(img):
 
 	# print len(screenCnt)
 
-	# cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 2)
+        cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 2)
 	targetIndex = findTarget(rectIndex,hierarchy) # returns index of target in list of rectangular contours
 	print targetIndex
 	if targetIndex != -1:
@@ -92,8 +92,8 @@ try:
     # initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
     camera.resolution = (640, 480)
-    camera.framerate = 18
-    camera.exposure_mode = 'auto'
+    camera.framerate = 10
+    camera.exposure_mode = 'sports'
     rawCapture = PiRGBArray(camera, size=(640, 480))
     
     # allow the camera to warmup
@@ -101,6 +101,7 @@ try:
 
     # capture frames from the camera
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+        start = time.clock()
 	# grab the raw NumPy array representing the image, then initialize the timestamp
 	# and occupied/unoccupied text
 	image = frame.array
@@ -108,9 +109,14 @@ try:
 	# process image
         
         cv2.waitKey(1)
+
+        procStart = time.clock()
         processImage(image)
+        procFinish = time.clock()
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
+        finish = time.clock()
+        print (procFinish - procStart)
 
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
@@ -119,6 +125,9 @@ except ImportError, e:
 
     while True:
 	img = cap.read()[1]
+        procStart = time.clock()
         processImage(img)
+        procFinish = time.clock()
+        print (procFinish - procStart)
 	cv2.waitKey(150)
 
