@@ -34,9 +34,9 @@ def drawCentroid(img, contour):
 
 def processImage(img):
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	gray = cv2.bilateralFilter(gray, 5, 25, 25)
-
-	edges = cv2.Canny(gray, 100, 200)
+	#gray = cv2.bilateralFilter(gray, 5, 25, 25)
+        
+        edges = cv2.Canny(gray, 100, 150)
 
 	cnts, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -62,7 +62,7 @@ def processImage(img):
 			screenCnt.append(cnts[c])
 
 			if max_cos < 0.2:  #if absolute cosine b/w contours is close to 0, so angle close to 90 degrees
-				print str(c) + " " + str(hierarchy[0][c])
+				# print str(c) + " " + str(hierarchy[0][c])
 				rectCnt.append(cnts[c])
 				rectIndex.append(c)
 	
@@ -72,11 +72,12 @@ def processImage(img):
 
         cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 2)
 	targetIndex = findTarget(rectIndex,hierarchy) # returns index of target in list of rectangular contours
-	print targetIndex
+	# print targetIndex
 	if targetIndex != -1:
 		# cv2.drawContours(img, rectCnt, targetIndex, (0, 0, 255), 2)
 		drawCentroid(img, rectCnt[targetIndex])
 	cv2.imshow("Contour!", img)
+        cv2.imshow("Modified", gray)
 
 
 
@@ -92,8 +93,9 @@ try:
     # initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
     camera.resolution = (640, 480)
-    camera.framerate = 10
-    camera.exposure_mode = 'sports'
+    # camera.framerate = 10
+    # camera.exposure_mode = 'sports'
+    camera.shutter_speed = 8000
     rawCapture = PiRGBArray(camera, size=(640, 480))
     
     # allow the camera to warmup
