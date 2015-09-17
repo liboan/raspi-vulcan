@@ -1,12 +1,19 @@
 import cv2
 import numpy
 import time
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", help = "display camera screens with contours")
+args = parser.parse_args()
+if args.d:
+    print "SHOW"
 
 def angle_cos(p0, p1, p2): # takes three points, finds the angle b/w two vectors formed from p0 & p1, p1 & p2
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs( numpy.dot(d1, d2) / numpy.sqrt( numpy.dot(d1, d1)*numpy.dot(d2, d2) ) )
 
-def findTarget(rectIndex, hierarchy): # traverses list of rectangles, tries to reach depth for two concentric rects (3 layers in)
+def findTarget(rectIndex, hierarchy): # traverses list of rectangles, tries to reach depth for two concentric rects (3 layers in).
 	# 4 [ 8  3  5 -1]
 	# 5 [-1 -1  6  4]
 	# 6 [-1 -1  7  5]
@@ -25,14 +32,15 @@ def findTarget(rectIndex, hierarchy): # traverses list of rectangles, tries to r
 
 	return -1
 
-def drawCentroid(img, contour):
+def drawCentroid(img, contour): #draws the centroid, returns centroid coordinate values
 	mean = contour.mean(axis = 0)
 	# moments = cv2.moments(contour)
 	cx = int(mean[0])
 	cy = int(mean[1])
 	cv2.circle(img, (cx,cy), 5, (0,0,255), -1)
+        return {"x": cx, "y": cy}
 
-def processImage(img):
+def processImage(img): #Looks for target. Returns target coordinates, if one is found.
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 	#gray = cv2.bilateralFilter(gray, 5, 25, 25)
         
@@ -73,12 +81,15 @@ def processImage(img):
         cv2.drawContours(img, screenCnt, -1, (0, 255, 0), 2)
 	targetIndex = findTarget(rectIndex,hierarchy) # returns index of target in list of rectangular contours
 	# print targetIndex
+        center = None
+
 	if targetIndex != -1:
-		# cv2.drawContours(img, rectCnt, targetIndex, (0, 0, 255), 2)
-		drawCentroid(img, rectCnt[targetIndex])
+            # cv2.drawContours(img, rectCnt, targetIndex, (0, 0, 255), 2)
+            # ISSUE: This will pick the first target if there are multiple
+            center = drawCentroid(img, rectCnt[targetIndex])
 	cv2.imshow("Contour!", img)
         cv2.imshow("Modified", gray)
-
+        return center
 
 
 using_pi_camera = False
@@ -113,7 +124,7 @@ try:
         cv2.waitKey(1)
 
         procStart = time.clock()
-        processImage(image)
+        targetCoords = processImage(image)
         procFinish = time.clock()
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
@@ -128,7 +139,7 @@ except ImportError, e:
     while True:
 	img = cap.read()[1]
         procStart = time.clock()
-        processImage(img)
+        targetCoords = processImage(img)
         procFinish = time.clock()
         print (procFinish - procStart)
 	cv2.waitKey(150)
