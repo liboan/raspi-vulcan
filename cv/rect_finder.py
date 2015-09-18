@@ -4,7 +4,7 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", help = "display camera screens with contours")
+parser.add_argument("-d", action = "store_true",  help = "display camera screens with contours")
 args = parser.parse_args()
 if args.d:
     print "SHOW"
@@ -87,8 +87,10 @@ def processImage(img): #Looks for target. Returns target coordinates, if one is 
             # cv2.drawContours(img, rectCnt, targetIndex, (0, 0, 255), 2)
             # ISSUE: This will pick the first target if there are multiple
             center = drawCentroid(img, rectCnt[targetIndex])
-	cv2.imshow("Contour!", img)
-        cv2.imshow("Modified", gray)
+
+        if args.d:
+            cv2.imshow("Contour!", img)
+            cv2.imshow("Modified", gray)
         return center
 
 
@@ -125,6 +127,7 @@ try:
 
         procStart = time.clock()
         targetCoords = processImage(image)
+        print targetCoords
         procFinish = time.clock()
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
@@ -140,6 +143,7 @@ except ImportError, e:
 	img = cap.read()[1]
         procStart = time.clock()
         targetCoords = processImage(img)
+        print targetCoords
         procFinish = time.clock()
         print (procFinish - procStart)
 	cv2.waitKey(150)
