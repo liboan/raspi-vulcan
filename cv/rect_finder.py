@@ -3,6 +3,8 @@ import numpy
 import time
 import argparse
 
+from turret_control import TurretRotator
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", action = "store_true",  help = "display camera screens with contours")
 args = parser.parse_args()
@@ -103,6 +105,9 @@ try:
 
     print "Pi camera detected"
 
+    # initialize connection to turret
+    a = TurretRotator(portName = "/dev/ttyACM1", baud = 1200)
+
     # initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
     camera.resolution = (640, 480)
@@ -133,6 +138,9 @@ try:
 	rawCapture.truncate(0)
         finish = time.clock()
         print (procFinish - procStart)
+
+        # set turret speed
+        a.setRotation(-1)
 
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
