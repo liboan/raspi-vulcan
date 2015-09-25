@@ -7,4 +7,4 @@ port = serial.Serial(portName, 9600)
 port.flushInput()
 
 while True:
-    port.write(chr(random.randint(90,110))
+    port.write(chr(89))
