@@ -14,6 +14,7 @@ class TurretRotator(object):
     def setRotation(self, spd): #set rotation speed, values capped
         spd = max(min(spd, self.cap), -1*self.cap)
         if (self.port != None):
+            self.port.write(chr(222)) #signal byte for Arduino, indicating a command byte is following
             self.port.write(chr(spd + 90)) #Arduino takes a value ranging from 0 to 180, 90 is stopped
             #self.port.write(chr(spd + 90)) #write multiple times to fill up buffer...so arduino doesn't read 255 lol
             #self.port.write(chr(spd + 90))

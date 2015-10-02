@@ -107,7 +107,7 @@ try:
 
     # initialize connection to turret
     try:
-        a = TurretRotator(portName = "/dev/ttyACM1", baud = 1200)
+        a = TurretRotator(portName = "/dev/ttyACM1", baud = 9600)
     except:
         print "Serial connection failed"
 
