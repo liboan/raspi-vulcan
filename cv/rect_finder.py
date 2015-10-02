@@ -106,15 +106,18 @@ try:
     print "Pi camera detected"
 
     # initialize connection to turret
-    a = TurretRotator(portName = "/dev/ttyACM1", baud = 1200)
+    try:
+        a = TurretRotator(portName = "/dev/ttyACM1", baud = 1200)
+    except:
+        print "Serial connection failed"
 
     # initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
-    camera.resolution = (640, 480)
+    camera.resolution = (320, 240)
     # camera.framerate = 10
     # camera.exposure_mode = 'sports'
     camera.shutter_speed = 8000
-    rawCapture = PiRGBArray(camera, size=(640, 480))
+    rawCapture = PiRGBArray(camera, size=camera.resolution)
     
     # allow the camera to warmup
     time.sleep(0.1)
@@ -140,7 +143,10 @@ try:
         print (procFinish - procStart)
 
         # set turret speed
-        a.setRotation(-1)
+        try:
+            a.setRotation(-1)
+        except:
+            None
 
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
