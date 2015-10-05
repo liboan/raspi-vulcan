@@ -111,6 +111,7 @@ try:
     except:
         print "Serial connection failed"
 
+    noneCount = 0 # variable for handling idle behavior
     # initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
     camera.resolution = (320, 240)
@@ -142,12 +143,33 @@ try:
         finish = time.clock()
         print (procFinish - procStart)
 
-        # set turret speed
-        try:
-            a.setRotation(-1)
-        except:
-            None
+        if targetCoords == None:
+            noneCount = noneCount + 1
+            if noneCount < 1000:
+                # set turret speed
+                try:
+                    a.setRotation(-1)
+                except:
+                    None
+            else:
+                # set turret speed
+                try:
+                    a.setRotation(1)
+                except:
+                    None
+            if noneCount > 2000:
+                noneCount = 0
+        else:
+            print "seen"
+            a.setRotation(numpy.sign(targetCoords.x - camera.resolution[0]/2)
+            
+            
 
+        # set turret speed
+        #try:
+        #    a.setRotation(-1)
+        #except:
+        #    None
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
     using_pi_camera = False
