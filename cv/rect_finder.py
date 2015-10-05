@@ -44,8 +44,8 @@ def drawCentroid(img, contour): #draws the centroid, returns centroid coordinate
 
 def processImage(img): #Looks for target. Returns target coordinates, if one is found.
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	#gray = cv2.bilateralFilter(gray, 5, 25, 25)
-        
+	gray = cv2.bilateralFilter(gray, 5, 25, 25)
+
         edges = cv2.Canny(gray, 100, 150)
 
 	cnts, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -98,6 +98,7 @@ def processImage(img): #Looks for target. Returns target coordinates, if one is 
 
 using_pi_camera = False
 
+
 try:
     from picamera.array import PiRGBArray
     from picamera import PiCamera
@@ -145,7 +146,8 @@ try:
 
         if targetCoords == None:
             noneCount = noneCount + 1
-            if noneCount < 1000:
+            print noneCount
+            if noneCount < 100:
                 # set turret speed
                 try:
                     a.setRotation(-1)
@@ -157,11 +159,12 @@ try:
                     a.setRotation(1)
                 except:
                     None
-            if noneCount > 2000:
+            if noneCount > 200:
                 noneCount = 0
         else:
             print "seen"
-            a.setRotation(numpy.sign(targetCoords.x - camera.resolution[0]/2))
+            print numpy.sign(targetCoords["x"] - camera.resolution[0]/2)
+            a.setRotation(2*numpy.sign(targetCoords["x"] - camera.resolution[0]/2))
             
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
