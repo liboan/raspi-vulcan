@@ -161,22 +161,15 @@ try:
                 noneCount = 0
         else:
             print "seen"
-            a.setRotation(numpy.sign(targetCoords.x - camera.resolution[0]/2)
+            a.setRotation(numpy.sign(targetCoords.x - camera.resolution[0]/2))
             
-            
-
-        # set turret speed
-        #try:
-        #    a.setRotation(-1)
-        #except:
-        #    None
 except ImportError, e:
     print "No Pi camera module detected, not running on a Pi"
     using_pi_camera = False
     cap = cv2.VideoCapture(0)
 
     while True:
-	img = cap.read()[1]
+        img = cap.read()[1]
         procStart = time.clock()
         targetCoords = processImage(img)
         print targetCoords
